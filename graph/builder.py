@@ -12,6 +12,8 @@ sys.path.append('..')
 from pygraph.classes.digraph import digraph
 from pygraph.algorithms import cycles as cycl
 from sets import Set
+from joblib import Parallel, delayed
+import multiprocessing
 
 # Graph creation
 
@@ -90,10 +92,14 @@ for i in range(-3, 4):
 all_turns = itertools.product([-3, -2, -1, 1, 2, 3], [-3, -2, -1, 1, 2, 3])  # all possible turns
 all_turns = list(Set(all_turns).difference(Set(turnmodel)))
 
-results = []
-# the powerset are all possible turns
-for tm in powerset(all_turns):
-    #now build a network from it and add the straight turns before to the tm
+num_cores = multiprocessing.cpu_count()
+
+
+def testtm(tm):
+    # now build a network from it and add the straight turns before to the tm
     turns = Set(tm).union(Set(turnmodel))
     result = (checkTurnmodelForCycles(network_size, buildNetwork(network_size, turns)), tm)
     print result
+
+# the powerset are all possible turns
+Parallel(n_jobs=num_cores)(delayed(testtm)(tm) for tm in powerset(all_turns))
