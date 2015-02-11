@@ -5,16 +5,30 @@
 
 # Import graphviz
 import sys
-
+import itertools
 sys.path.append('..')
 
 # Import pygraph
 from pygraph.classes.digraph import digraph
 from pygraph.algorithms import cycles as cycl
+from sets import Set
 
 # Graph creation
 
 network_size = 6
+
+
+def powerset(seq):
+    """
+    Returns all the subsets of this set. This is a generator.
+    """
+    if len(seq) <= 1:
+        yield seq
+        yield []
+    else:
+        for item in powerset(seq[1:]):
+            yield [seq[0]] + item
+            yield item
 
 
 def node(dir, x, y, z, pdir):
@@ -23,17 +37,15 @@ def node(dir, x, y, z, pdir):
 # print node("a",1,2,3,"in")
 # Add nodes and edges
 dirs = {-3: "d", -2: "s", -1: "w", 0: "l", 1: "e", 2: "n", 3: "u"}
-turnmodel = []
-# basic turnmodel: straight connections
-for i in range(-3, 4):
-    if i != 0:
-        turnmodel.append((i, -i))  # straight
-turnmodel.extend([(1, -2), (-2, -1), (-1, 2), (2, 1)])
+
+# turnmodel.extend([(1, -2), (-2, -1), (-1, 2), (2, 1)])
 #print turnmodel
 
 
-network = [[[turnmodel for _ in range(0, network_size)] for _ in range(0, network_size)] for _ in
+def buildNetwork(network_size, turnmodel):
+    return [[[turnmodel for _ in range(0, network_size)] for _ in range(0, network_size)] for _ in
            range(0, network_size)]
+
 
 
 def checkTurnmodelForCycles(network_size, network):
@@ -69,4 +81,19 @@ def checkTurnmodelForCycles(network_size, network):
     return len(cycl.find_cycle(gr))
 
 
-print checkTurnmodelForCycles(network_size, network)
+turnmodel = []
+# basic turnmodel: straight connections
+for i in range(-3, 4):
+    if i != 0:
+        turnmodel.append((i, -i))  # straight
+
+all_turns = itertools.product([-3, -2, -1, 1, 2, 3], [-3, -2, -1, 1, 2, 3])  # all possible turns
+all_turns = list(Set(all_turns).difference(Set(turnmodel)))
+
+results = []
+# the powerset are all possible turns
+for tm in powerset(all_turns):
+    #now build a network from it and add the straight turns before to the tm
+    turns = Set(tm).union(Set(turnmodel))
+    result = (checkTurnmodelForCycles(network_size, buildNetwork(network_size, turns)), tm)
+    print result
