@@ -27,12 +27,12 @@ turnmodel = []
 # basic turnmodel: straight connections
 for i in range(-3, 4):
     if i != 0:
-        turnmodel.append((i, -i));  #straight
+        turnmodel.append((i, -i))  # straight
 turnmodel.extend([(1, -2), (-2, -1), (-1, 2), (2, 1)])
 #print turnmodel
 
 
-network = [[[turnmodel for x in range(0, network_size)] for x in range(0, network_size)] for x in
+network = [[[turnmodel for _ in range(0, network_size)] for _ in range(0, network_size)] for _ in
            range(0, network_size)]
 
 
