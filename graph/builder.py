@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2007-2008 Pedro Matiello <pmatiello@gmail.com>
-# License: MIT (see COPYING file)
 
 # Arguments: arg1 num_cpus to use
 
@@ -164,10 +162,7 @@ if __name__ == "__main__":
     all_turns = list(
         set(all_turns).difference(set(turnmodel)).difference(zip(oports, oports)))  #remove straights and u-turns
 
-
-
-
-
+    nrmodelsperturnnr = [0 for x in range(25)]
 
 
     pool = Pool(processes=num_cores)  # use all available CPUs
@@ -175,7 +170,11 @@ if __name__ == "__main__":
     #run now in parallel with a chunksize of 1000
     for result in pool.imap_unordered(testtm, powerset(all_turns), chunksize=1000):
         if result != None:
-            print(result)  # print the found turnmodels
+            print(len(result[1]), (result))  # print the found turnmodels
+            nrmodelsperturnnr[len(result[1])] += 1
+
+    for i, a in enumerate(nrmodelsperturnnr):
+        print( (i, a))
 
     print 'finished @ ' + str(datetime.datetime.now())
 
