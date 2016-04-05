@@ -18,7 +18,7 @@ import multiprocessing
 # Graph creation
 
 network_size = 3
-dirs = {-3: "d", -2: "s", -1: "w", 0: "l", 1: "e", 2: "n", 3: "u"}
+dirs = { -2: "s", -1: "w", 0: "l", 1: "e", 2: "n"}
 
 def test_reachability(tm):
     """
@@ -89,7 +89,7 @@ def checkTurnmodelForCycles(network_size, network, tm):
     for x in range(0, network_size):
         for y in range(0, network_size):
             for z in range(0, network_size):
-                for dir in 0, -3, -2, -1, 1, 2, 3:  # we have to do 0 first
+                for dir in 0, -2, -1, 1, 2:  # we have to do 0 first
                     # build in and out nodes for this port
                     gr.add_node(node(dirs[dir], x, y, z, "in"))
                     gr.add_node(node(dirs[dir], x, y, z, "out"))
@@ -100,7 +100,7 @@ def checkTurnmodelForCycles(network_size, network, tm):
 
                 # create inter node connections
                 # connect to nodes which are in negative direction
-                for d in range(-3, -0):
+                for d in range(-2, -0):
                     coord = [x, y, z]
                     # calculate opposite node for my current dir
                     coord[-d - 1] -= 1  # decrement the coord in this direction if d= -1 we have to go -1 in west dir
@@ -133,7 +133,7 @@ def testtm(tm):
     :return: a tuple of cycle length and the turnmodel, so if first element is 0 it is cycle free and interesting
     """
     # now build a network from it and add the straight turns before to the tm
-    if (len(tm) > 12):  # require at least 12 turns
+    if (len(tm) > 0):  # require at least 12 turns
         turns = set(tm).union(set(turnmodel))
         return checkTurnmodelForCycles(network_size, buildNetwork(network_size, turns), tm)
     else:
@@ -152,11 +152,11 @@ if __name__ == "__main__":
     # Build all_turns
     turnmodel = []
     # basic turnmodel: straight connections
-    for i in range(-3, 4):
+    for i in range(-2, 3):
         if i != 0:
             turnmodel.append((i, -i))  # straight
 
-    oports = [-3, -2, -1, 1, 2, 3]  # all non local dirs
+    oports = [ -2, -1, 1, 2]  # all non local dirs
 
     all_turns = itertools.product(oports, oports)  # all possible turns
     all_turns = list(
