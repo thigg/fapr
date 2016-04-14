@@ -148,7 +148,7 @@ def testtm(tm):
     :return: a tuple of cycle length and the turnmodel, so if first element is 0 it is cycle free and interesting
     """
     # now build a network from it and add the straight turns before to the tm
-    if (len(tm) > 12):  # require at least 12 turns
+    if (len(tm) > 10):  # require at least 12 turns
         turns = set(tm).union(set(turnmodel))
         return checkTurnmodelForCycles(network_size, buildNetwork(network_size, turns), tm)
     else:
@@ -187,12 +187,15 @@ if __name__ == "__main__":
         if result != None:
             print(len(result[1]), (result))  # print the found turnmodels
             nrmodelsperturnnr[len(result[1])] += 1
+        else:
+            print "None"
 
-
+    akku  = 0
     for i, a in enumerate(nrmodelsperturnnr):
         print( (i, a))
+        akku += a
 
-    print 'finished @ ' + str(datetime.datetime.now())
+    print 'finished @ ' + str(datetime.datetime.now()) + " with " + str(akku) +" turnmodels found."
 
 
 
