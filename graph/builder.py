@@ -11,6 +11,7 @@ import datetime
 # Import pygraph
 from pygraph.classes.digraph import digraph
 from pygraph.algorithms import cycles as cycl
+from pygraph.algorithms import searching as gsearch
 
 import multiprocessing
 
@@ -82,9 +83,10 @@ def checkTurnmodelForCycles(network_size, network, tm):
     checks the given network represented by a 3d array of turnmodel for cycles, returns the nr of cycles
     todo: remove the tm reference and print in testtm
     """
-    if not test_reachability(tm):
-        return None
+   # if not test_reachability(tm):
+   #     return None
     gr = digraph()
+
     # create basic graph with inter node connections and cons to and from local
     for x in range(0, network_size):
         for y in range(0, network_size):
@@ -94,7 +96,7 @@ def checkTurnmodelForCycles(network_size, network, tm):
                     gr.add_node(node(dirs[dir], x, y, z, "in"))
                     gr.add_node(node(dirs[dir], x, y, z, "out"))
                     # connect to local
-                    if dir != 0:
+                    if dir != 0:# reverse local labeling here local out is the output from the processing element
                         gr.add_edge((node(dirs[dir], x, y, z, "in"), node("l", x, y, z, "in")))
                         gr.add_edge((node("l", x, y, z, "out"), node(dirs[dir], x, y, z, "out")))
 
@@ -117,6 +119,19 @@ def checkTurnmodelForCycles(network_size, network, tm):
                     if (turn[0] == turn[1]):  # uturns shouldnt be allowed
                         print '#wtf'
                     gr.add_edge((node(dirs[turn[0]], x, y, z, "in"), node(dirs[turn[1]], x, y, z, "out")))
+
+    # check connectivity
+
+    for x in range(0, network_size):
+        for y in range(0, network_size):
+            for z in range(0, network_size):
+                dic,trash= gsearch.breadth_first_search(gr, root=node("l", x, y, z, "out"))
+                for x1 in range(0, network_size):
+                    for y1 in range(0, network_size):
+                        for z1 in range(0, network_size):
+                            if x!= x1 and y!= y1 and z != z1:
+                                if not  node("l",x1,y1,z1,"in") in dic:
+                                    return None
 
     res = len(cycl.find_cycle(gr))
     if res != 0:
@@ -172,6 +187,7 @@ if __name__ == "__main__":
         if result != None:
             print(len(result[1]), (result))  # print the found turnmodels
             nrmodelsperturnnr[len(result[1])] += 1
+
 
     for i, a in enumerate(nrmodelsperturnnr):
         print( (i, a))
