@@ -26,6 +26,8 @@ def test_reachability(tm):
     Tests a turnmodel if all nodes are reachable from every node
     The idea is, that either a turn or it's opposite have to exists
     Example: NE or EN
+    is not covering all turnmodels which are fully connected via non minimal paths
+
     """
     for a in all_turns:
         b, c = a
@@ -120,23 +122,35 @@ def checkTurnmodelForCycles(network_size, network, tm):
                         print '#wtf'
                     gr.add_edge((node(dirs[turn[0]], x, y, z, "in"), node(dirs[turn[1]], x, y, z, "out")))
 
-    # check connectivity
-
-    for x in range(0, network_size):
-        for y in range(0, network_size):
-            for z in range(0, network_size):
-                dic,trash= gsearch.breadth_first_search(gr, root=node("l", x, y, z, "out"))
-                for x1 in range(0, network_size):
-                    for y1 in range(0, network_size):
-                        for z1 in range(0, network_size):
-                            if x!= x1 and y!= y1 and z != z1:
-                                if not  node("l",x1,y1,z1,"in") in dic:
-                                    return None
-
+    # ...is fully connected
+    if not check_connectivity_with_graphsearch(gr):
+        return None
+    # ... and has no cycles
     res = len(cycl.find_cycle(gr))
     if res != 0:
         return None
     return (res, tm)
+
+
+
+def check_connectivity_with_graphsearch(gr):
+    """
+    checks if the local nodes in the graph are fully connected
+    :param gr: the graph to check
+    :return: true if the local nodes are fully connected, false if not
+    """
+    # check connectivity
+    for x in range(0, network_size):
+        for y in range(0, network_size):
+            for z in range(0, network_size):
+                dic, trash = gsearch.breadth_first_search(gr, root=node("l", x, y, z, "out"))
+                for x1 in range(0, network_size):
+                    for y1 in range(0, network_size):
+                        for z1 in range(0, network_size):
+                            if  x != x1 and y != y1 and z != z1:
+                                if not node("l", x1, y1, z1, "in") in dic:
+                                    return False
+    return True
 
 
 
